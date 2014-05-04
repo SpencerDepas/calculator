@@ -27,8 +27,9 @@ public class MainActivity extends ActionBarActivity {
 	TextView answer;
 	
 	String value[] = new String[26];
-	int sign[] = new int[13]; // 1 = +, 2 = -
+	int sign[] = new int[26]; // 1 = +, 2 = -
 	int valueIndex = 0;
+	boolean multiplex = false;
 	
 	public void Toaster(String iAmString) {
 		Toast.makeText(this.getApplicationContext(), iAmString,
@@ -45,12 +46,18 @@ public class MainActivity extends ActionBarActivity {
 	
 	
 	//clear information after = 
+	
+	//add custom divide  button
+	
+	//add stuff so I cant add two ++ ect
+	//check format
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         textView = (TextView) this.findViewById(R.id.editText1);
+        textView.setFocusable(true);
         answer = (TextView) this.findViewById(R.id.editText2);
        
         //change color
@@ -125,25 +132,26 @@ public class MainActivity extends ActionBarActivity {
     public void rParen(View view){
     	textView.append(")");  	
     }
+ 
+
+    public void dot(View view){
+    	textView.append(".");  	
+    }
     public void mod(View view){
     	textView.append("%");  	
+    	sign[valueIndex] = 5;
+    	valueIndex++;
     }
-    
-    public void ac(View view){
-    	textView.setText("");
-    	answer.setText("");
-    }
-    
     public void divide(View view){
-    	textView.append("/");  	
+    	textView.append("/"); 
+    	sign[valueIndex] = 4;
+    	valueIndex++;
     }
     
     public void times(View view){
     	textView.append("*");  	
-    }
-
-    public void dot(View view){
-    	textView.append(".");  	
+    	sign[valueIndex] = 3;
+    	valueIndex++;
     }
     
     public void plus(View view){
@@ -157,13 +165,25 @@ public class MainActivity extends ActionBarActivity {
     	valueIndex++;
     }
     
-   public void equals(View view){
+    
+    public void ac(View view){
+    	textView.setText("");
+    	answer.setText("");
+    	valueIndex = 0; // reset counter 
+   	   //re set STring
+       for(int i = 0; i < value.length; i++){
+       	value[i] = ""; 	
+       	sign[i] = 0;
+       }
+       multiplex = false;
+    }
+    
+    
+    public void equals(View view){
     	
     	String equation = textView.getEditableText().toString();
     	textView.append(" =");
-    	
-    	
-    	
+
     	//Toaster(equation);
     	
     	
@@ -171,11 +191,12 @@ public class MainActivity extends ActionBarActivity {
     	String sResult = Integer.toString(result);
     	answer.setText(sResult);
 
-
+    	multiplex = false;
     	valueIndex = 0; // reset counter 
     	 //re set STring
         for(int i = 0; i < value.length; i++){
         	value[i] = ""; 	
+        	sign[i] = 0;
         }
     }
     
@@ -189,15 +210,81 @@ public class MainActivity extends ActionBarActivity {
     	int sum1 = 0;
     	
     	
+    	
+    	
+    	//multiplys and divides
     	for(int i = 0; sign[i] > 0; i++){
     		
-    	
+    		
+    		
 	    	switch(sign[i]){
+
 			
-			case 1: sum1 += Integer.parseInt(value[i]) + Integer.parseInt(value[i + 1]);
+			case 3: if(sum1 == 0){
+						sum1 = Integer.parseInt(value[i]);
+						(value[i]) = "";
+					}
+					sum1 *= Integer.parseInt(value[i + 1]);
+					(value[i + 1]) = "";
+					multiplex = true;
+					break;
+					
+			case 4: if(sum1 == 0){
+						sum1 = Integer.parseInt(value[i]);
+						(value[i]) = "";
+					}
+					sum1 /= Integer.parseInt(value[i + 1]);
+					(value[i + 1]) = "";
+					multiplex = true;
 					break;
 			
-			case 2: sum1 += Integer.parseInt(value[i]) - Integer.parseInt(value[i + 1]);
+			case 5: if(sum1 == 0){
+						sum1 = Integer.parseInt(value[i]);
+						(value[i]) = "";
+					}
+					sum1 %= Integer.parseInt(value[i + 1]);
+					(value[i + 1]) = "";
+					multiplex = true;
+					break;
+			
+	    	}
+	    	
+    	}
+    	
+
+    	
+    	//this adds and subtracts
+    	for(int i = 0; sign[i] > 0; i++){
+    		
+	    	switch(sign[i]){
+			
+			case 1: if(value[i].length() > 0 && multiplex == true){//these two ifelse are for finding out the right index if multiplicvation has been used
+						sum1 += Integer.parseInt(value[i]);
+						(value[i]) = "";
+					}else{
+						if(multiplex){
+							sum1 += Integer.parseInt(value[i + 1]);
+							(value[i + 1]) = "";
+						}
+					}
+					if(sum1 == 0 && multiplex == false){
+						sum1 = Integer.parseInt(value[i]);
+					} else{
+						if(!multiplex){
+							sum1 += Integer.parseInt(value[i + 1]);
+						}
+					}
+					
+					break;
+			
+			case 2: if(sum1 == 0){
+						sum1 = Integer.parseInt(value[i]);
+					} 
+					if(value[i].length() > 0){
+						sum1 -= Integer.parseInt(value[i]);
+					}else{
+						sum1 -= Integer.parseInt(value[i + 1]);
+					}
 					break;
 	    	}
 	    	
@@ -206,102 +293,10 @@ public class MainActivity extends ActionBarActivity {
     	
     	
     	
-    	
-    	
-	    	Toaster(Integer.toString(sum1));
+	    	//Toaster(Integer.toString(sum1));
 	    	return sum1;
     }
-    
-    
-    /*public int Calculate(String equation){
-    	
-    	
-    	
-		int sum1 = 0, sum2 = 0;
-		int index;
-		int sign;
-		//sign
-		// 1 = +
-		// 2 = -
-		
-		//for plus
-		while(true){
-			
-			//gets the first sign 
-			
-			//if both sign are included
-			if(equation.indexOf("+") > -1 && equation.indexOf("-") > -1){
-				if(equation.indexOf("+") < equation.indexOf("-")){
-					index = equation.indexOf("+");
-					sign = 1;
-				}else{	
-					index = equation.indexOf("-");	
-					sign = 2;
-				}
-			}else{
-				//if only one sign is included
-				if(equation.indexOf("+") > -1){
-					index = equation.indexOf("+");
-					sign = 1;
-				}else{
-					index = equation.indexOf("-");
-					sign = 2;
-				}
-				
-			}
-			
-			//if first loop put first number in sum1                !!!!!!only positive
-			if(sum1 == 0){
-				sum1 += Integer.parseInt(equation.substring(0, index));
-				equation = equation.substring(index + 1);
-				continue;
-			}
-			
-			//nextIndex
-			
-			//first operation
-			switch(sign){
-			
-			case 1: sum1 +=  Integer.parseInt(equation.substring(0, index));
-					equation = equation.substring(index + 1);
-					continue;
-			
-			case 2: sum1 -=  Integer.parseInt(equation.substring(0, index));
-					equation = equation.substring(index + 1);
-					continue;
-			
-			}
-			
-			
 
-			if(equation.indexOf("+") == -1 && equation.indexOf("-") == -1){
-				break;
-			}
-			
-			
-		}
-
-		return sum1 ;
-	}*/
-    
-  //this addes
-  		/*while(true){
-  			
-  			
-  			
-  			index = equation.indexOf("+");
-  			sum1 += Integer.parseInt(equation.substring(0, index));
-  			equation = equation.substring(index + 1);
-  			
-
-  			
-  			
-  			if(equation.indexOf("+") == -1){
-  				sum1 +=  Integer.parseInt(equation);
-  				break;
-  			}
-  		}*/
-  			
     
     
     @Override
