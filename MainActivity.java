@@ -165,8 +165,8 @@ public class MainActivity extends ActionBarActivity {
     	valueIndex++;
     }
     
-    
-    public void ac(View view){
+     
+    public void ac(View view){ 
     	textView.setText("");
     	answer.setText("");
     	valueIndex = 0; // reset counter 
