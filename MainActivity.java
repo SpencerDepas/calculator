@@ -5,6 +5,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,11 +24,14 @@ import android.os.Build;
 
 public class MainActivity extends ActionBarActivity {
 
-	private SensorManager mSensorManager;
+	
+	
+
 	//EditText editText;
 	TextView textView;
 	TextView answer;
 	
+	String checkValue = ""; //this is to check format before to stop things like "++" or "4+=" ect
 	String value[] = new String[26];
 	int sign[] = new int[26]; // 1 = +, 2 = -
 	int valueIndex = 0;
@@ -36,33 +42,27 @@ public class MainActivity extends ActionBarActivity {
 				Toast.LENGTH_LONG).show();
 	}
 	
+	
+	
+	
 
 	//assumes all first numbers are positive
-	
-	//I think that maybe I should revise How I am doing this
-	//and instead of converting it from a string break it up into 
-	//numbers on each press. seperating what is seen and
-	//the numbers
-	
-	
-	//clear information after = 
-	
-	//add custom divide  button
-	
-	//add stuff so I cant add two ++ ect
-	//check format
+	//i need to add full division capacty.use type other than int
+	//when you shake it does onClear
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         textView = (TextView) this.findViewById(R.id.editText1);
-        textView.setFocusable(true);
         answer = (TextView) this.findViewById(R.id.editText2);
+       
        
         //change color
         Button equals = (Button) this.findViewById(R.id.buttonEquals);
-        equals.getBackground().setColorFilter(0xff888888, PorterDuff.Mode.MULTIPLY);
+        Drawable d = findViewById(R.id.buttonEquals).getBackground();  
+        PorterDuffColorFilter filter = new PorterDuffColorFilter(Color.BLUE, PorterDuff.Mode.SRC_ATOP);  
+        d.setColorFilter(filter); 
         
         
         //incializes string
@@ -71,98 +71,101 @@ public class MainActivity extends ActionBarActivity {
         }
         
     }
+  
+    public void buttonBusiness(String buttonNumber){
+    	if(multiplex == true){
+    		textView.setText("");
+        	answer.setText("");
+            multiplex = false;
+    	}
+    	textView.append(buttonNumber);  
+    	checkValue = checkValue.concat(buttonNumber);
+    	value[valueIndex] = value[valueIndex].concat(buttonNumber);
+    }
+    
+    
+    //numbers
 
-
-    //1st row
     public void seven(View view){
-    	textView.append("7");  	
-    	value[valueIndex] = value[valueIndex].concat("7");
+    	buttonBusiness("7");
     }
     
     public void eight(View view){
-    	textView.append("8");  
-    	value[valueIndex] = value[valueIndex].concat("8");
+    	buttonBusiness("8");
     }
     public void nine(View view){
-    	textView.append("9");  	
-    	value[valueIndex] = value[valueIndex].concat("9");
+    	buttonBusiness("9");
     }
-    
-    //2nd row
     public void four(View view){
-    	textView.append("4");  	
-    	value[valueIndex] = value[valueIndex].concat("4");
+    	buttonBusiness("4");
     }
     public void five(View view){
-    	textView.append("5");  	
-    	value[valueIndex] = value[valueIndex].concat("5");
+    	buttonBusiness("5");
     }
     public void six(View view){
-    	textView.append("6");  	
-    	value[valueIndex] = value[valueIndex].concat("6");
+    	buttonBusiness("6");
     }
     
-    //3rd row
     public void one(View view){
-    	textView.append("1");  	
-    	value[valueIndex] = value[valueIndex].concat("1");
+    	buttonBusiness("1");
     }
     public void two(View view){
-    	textView.append("2");
-    	value[valueIndex] = value[valueIndex].concat("2");
+    	buttonBusiness("2");
     }
     public void three(View view){
-    	textView.append("3");  	
-    	value[valueIndex] = value[valueIndex].concat("3");
+    	buttonBusiness("3");
     }
     
-    //bottom row
     public void zero(View view){
-    	textView.append("0");  	
-    	value[valueIndex] = value[valueIndex].concat("0");
+    	buttonBusiness("0");
     }
     
-    //equals not included here
-    //
     //operands
     public void lParen(View view){
-    	textView.append("(");  		
+    	//textView.append("(");  
+    	Toaster("I dont work yet");
+    }  
+    public void rParent(View view){
+    	//textView.append(")");  
+    	Toaster("I dont work yet");
     }
-    
-    public void rParen(View view){
-    	textView.append(")");  	
-    }
- 
 
     public void dot(View view){
-    	textView.append(".");  	
+    	//textView.append("."); 
+    	Toaster("I dont work yet");
     }
+    
+    public void operandBusiness(String operand, int operandSign){
+    	char lastChar = checkValue.charAt(checkValue.length() - 1);
+    	if(lastChar == '+' || lastChar == '-' || lastChar == '=' || lastChar == '/' || lastChar == '÷' || lastChar == '*'){
+	    	//this is for if they press +++++++
+    	}else{
+	    	textView.append(operand);  	
+	    	checkValue = checkValue.concat(operand);
+	    	sign[valueIndex] = operandSign;
+	    	valueIndex++;
+    	} 	
+    }
+    
+    
+    
     public void mod(View view){
-    	textView.append("%");  	
-    	sign[valueIndex] = 5;
-    	valueIndex++;
+    	operandBusiness("%", 5);
     }
+
     public void divide(View view){
-    	textView.append("/"); 
-    	sign[valueIndex] = 4;
-    	valueIndex++;
+    	operandBusiness("/", 4);
     }
     
     public void times(View view){
-    	textView.append("*");  	
-    	sign[valueIndex] = 3;
-    	valueIndex++;
+    	operandBusiness("*", 3);
     }
     
     public void plus(View view){
-    	textView.append("+"); 
-    	sign[valueIndex] = 1;
-    	valueIndex++;
+    	operandBusiness("+", 1);
     }
     public void minus(View view){
-    	textView.append("-");  	
-    	sign[valueIndex] = 2;
-    	valueIndex++;
+    	operandBusiness("-", 2);
     }
     
      
@@ -180,37 +183,35 @@ public class MainActivity extends ActionBarActivity {
     
     
     public void equals(View view){
+    	char lastChar = checkValue.charAt(checkValue.length() - 1);
+    	if(lastChar == '+' || lastChar == '-' || lastChar == '=' || lastChar == '/' || lastChar == '÷' || lastChar == '*'){
+	    	//then nothing
+    	}else{
     	
-    	String equation = textView.getEditableText().toString();
-    	textView.append(" =");
-
-    	//Toaster(equation);
-    	
-    	
-    	int result = Calculate(equation);
-    	String sResult = Integer.toString(result);
-    	answer.setText(sResult);
-
-    	multiplex = false;
-    	valueIndex = 0; // reset counter 
-    	 //re set STring
-        for(int i = 0; i < value.length; i++){
-        	value[i] = ""; 	
-        	sign[i] = 0;
-        }
+	    	String equation = textView.getEditableText().toString();
+	    	textView.append(" =");
+	
+	    	
+	    	int result = Calculate(equation);
+	    	String sResult = Integer.toString(result);
+	    	answer.setText(sResult);
+	
+	    	checkValue = "+";
+	    	
+	    	valueIndex = 0; // reset counter 
+	    	//re set STring
+	        for(int i = 0; i < value.length; i++){
+	        	value[i] = ""; 	
+	        	sign[i] = 0;
+	        }
+    	}
     }
     
-	//turns string to int.
-	//returns answer
-	
     
     public int Calculate(String equation){
     	
     	//int sum1 = Integer.parseInt(value[0]) + Integer.parseInt(value[1]);
     	int sum1 = 0;
-    	
-    	
-    	
     	
     	//multiplys and divides
     	for(int i = 0; sign[i] > 0; i++){
@@ -269,6 +270,7 @@ public class MainActivity extends ActionBarActivity {
 					}
 					if(sum1 == 0 && multiplex == false){
 						sum1 = Integer.parseInt(value[i]);
+						sum1 += Integer.parseInt(value[i + 1]);
 					} else{
 						if(!multiplex){
 							sum1 += Integer.parseInt(value[i + 1]);
@@ -290,10 +292,6 @@ public class MainActivity extends ActionBarActivity {
 	    	
     	}	
     	
-    	
-    	
-    	
-	    	//Toaster(Integer.toString(sum1));
 	    	return sum1;
     }
 
