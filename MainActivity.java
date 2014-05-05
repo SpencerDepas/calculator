@@ -1,12 +1,17 @@
 package com.example.calculator;
 
+
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -22,9 +27,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Build;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity implements
+		SensorEventListener{
 
-	
+	//this is for the onShake
+	private SensorManager mSensorManager;
+	private boolean mInitialized;
+	private Sensor mAccelerometer;
+	private final float NOISE = (float) 10.0;
 	
 
 	//EditText editText;
@@ -58,11 +68,54 @@ public class MainActivity extends ActionBarActivity {
         answer = (TextView) this.findViewById(R.id.editText2);
        
        
-        //change color
+        //change color of button
+        
         Button equals = (Button) this.findViewById(R.id.buttonEquals);
         Drawable d = findViewById(R.id.buttonEquals).getBackground();  
         PorterDuffColorFilter filter = new PorterDuffColorFilter(Color.BLUE, PorterDuff.Mode.SRC_ATOP);  
         d.setColorFilter(filter); 
+        
+        Button mod = (Button) this.findViewById(R.id.buttonMod);
+        Drawable a = findViewById(R.id.buttonMod).getBackground();  
+        PorterDuffColorFilter filter2 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
+        a.setColorFilter(filter2); 
+        
+        Button AC = (Button) this.findViewById(R.id.buttonAC);
+        Drawable b = findViewById(R.id.buttonAC).getBackground();  
+        PorterDuffColorFilter filter3 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
+        b.setColorFilter(filter3); 
+        
+        Button plus = (Button) this.findViewById(R.id.buttonPlus);
+        Drawable c = findViewById(R.id.buttonPlus).getBackground();  
+        PorterDuffColorFilter filter4 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
+        c.setColorFilter(filter4); 
+        
+        Button minus = (Button) this.findViewById(R.id.buttonMinus);
+        Drawable e = findViewById(R.id.buttonMinus).getBackground();  
+        PorterDuffColorFilter filter5 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
+        e.setColorFilter(filter5); 
+        
+        Button times = (Button) this.findViewById(R.id.buttonTimes);
+        Drawable f = findViewById(R.id.buttonTimes).getBackground();  
+        PorterDuffColorFilter filter6 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
+        f.setColorFilter(filter6); 
+        
+        Button divide = (Button) this.findViewById(R.id.buttonDivide);
+        Drawable g = findViewById(R.id.buttonDivide).getBackground();  
+        PorterDuffColorFilter filter7 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
+        g.setColorFilter(filter7); 
+        
+        Button lParen = (Button) this.findViewById(R.id.buttonLParen);
+        Drawable h = findViewById(R.id.buttonLParen).getBackground();  
+        PorterDuffColorFilter filter8 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
+        h.setColorFilter(filter8); 
+        
+        Button rParen = (Button) this.findViewById(R.id.buttonRParen);
+        Drawable z = findViewById(R.id.buttonRParen).getBackground();  
+        PorterDuffColorFilter filter9 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
+        z.setColorFilter(filter9); 
+        
+        
         
         
         //incializes string
@@ -70,8 +123,19 @@ public class MainActivity extends ActionBarActivity {
         	value[i] = ""; 	
         }
         
+        
+        //onShake stuff
+        mInitialized = false;
+		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		mAccelerometer = mSensorManager
+				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		mSensorManager.registerListener(this, mAccelerometer,
+				SensorManager.SENSOR_DELAY_NORMAL);
+        
     }
   
+    
+    
     public void buttonBusiness(String buttonNumber){
     	if(multiplex == true){
     		textView.setText("");
@@ -316,6 +380,88 @@ public class MainActivity extends ActionBarActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+	protected void onResume() {
+		super.onResume();
+
+		mSensorManager.registerListener(this, mAccelerometer,
+				SensorManager.SENSOR_DELAY_NORMAL);
+	}
+
+
+    @Override
+	protected void onPause() {
+		super.onPause();
+
+		mSensorManager.unregisterListener(this);
+	}
+    
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		// TODO Auto-generated method stub
+		float x = event.values[0];
+		float y = event.values[1];
+		float z = event.values[2];
+		float mLastX = 0;
+		float mLastY = 0;
+		float mLastZ = 0;
+		
+		
+		if (!mInitialized) {
+			mLastX = x;
+			mLastY = y;
+			mLastZ = z;
+			mInitialized = true;
+		} else {
+			float deltaX = Math.abs(mLastX - x);
+			float deltaY = Math.abs(mLastY - y);
+			float deltaZ = Math.abs(mLastZ - z);
+			if (deltaX < NOISE)
+				deltaX = (float) 0.0;
+			if (deltaY < NOISE)
+				deltaY = (float) 0.0;
+			if (deltaZ < NOISE)
+				deltaZ = (float) 0.0;
+			mLastX = x;
+			mLastY = y;
+			mLastZ = z;
+		
+			if (deltaX > deltaY) {
+				textView.setText("");
+		    	answer.setText("");
+		    	valueIndex = 0; // reset counter 
+		   	   //re set STring
+		       for(int i = 0; i < value.length; i++){
+		       	value[i] = ""; 	
+		       	sign[i] = 0;
+		       }
+		       multiplex = false;
+			} else if (deltaY > deltaX) {
+				textView.setText("");
+		    	answer.setText("");
+		    	valueIndex = 0; // reset counter 
+		   	   //re set STring
+		       for(int i = 0; i < value.length; i++){
+		       	value[i] = ""; 	
+		       	sign[i] = 0;
+		       }
+		       multiplex = false;
+			} else {
+				//do nothing
+			}
+		}
+	}
+
+
+
+
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// TODO Auto-generated method stub
+		
+	}
 
 
 }
