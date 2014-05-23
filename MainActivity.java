@@ -1,9 +1,6 @@
 package com.example.calculator;
 
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -15,17 +12,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.os.Build;
 
 public class MainActivity extends Activity implements
 		SensorEventListener{
@@ -46,6 +38,7 @@ public class MainActivity extends Activity implements
 	int sign[] = new int[26]; // 1 = +, 2 = -
 	int valueIndex = 0;
 	boolean multiplex = false;
+	boolean firstIntNegative = false;
 	
 	public void Toaster(String iAmString) {
 		Toast.makeText(this.getApplicationContext(), iAmString,
@@ -70,53 +63,52 @@ public class MainActivity extends Activity implements
        
         //change color of button
         
-        Button equals = (Button) this.findViewById(R.id.buttonEquals);
+       
         Drawable d = findViewById(R.id.buttonEquals).getBackground();  
         PorterDuffColorFilter filter = new PorterDuffColorFilter(Color.BLUE, PorterDuff.Mode.SRC_ATOP);  
         d.setColorFilter(filter); 
         
-        Button mod = (Button) this.findViewById(R.id.buttonMod);
+        
         Drawable a = findViewById(R.id.buttonMod).getBackground();  
         PorterDuffColorFilter filter2 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
         a.setColorFilter(filter2); 
         
-        Button AC = (Button) this.findViewById(R.id.buttonAC);
+        
         Drawable b = findViewById(R.id.buttonAC).getBackground();  
         PorterDuffColorFilter filter3 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
         b.setColorFilter(filter3); 
         
-        Button plus = (Button) this.findViewById(R.id.buttonPlus);
+        
         Drawable c = findViewById(R.id.buttonPlus).getBackground();  
         PorterDuffColorFilter filter4 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
         c.setColorFilter(filter4); 
         
-        Button minus = (Button) this.findViewById(R.id.buttonMinus);
+        
         Drawable e = findViewById(R.id.buttonMinus).getBackground();  
         PorterDuffColorFilter filter5 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
         e.setColorFilter(filter5); 
         
-        Button times = (Button) this.findViewById(R.id.buttonTimes);
+        
         Drawable f = findViewById(R.id.buttonTimes).getBackground();  
         PorterDuffColorFilter filter6 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
         f.setColorFilter(filter6); 
         
-        Button divide = (Button) this.findViewById(R.id.buttonDivide);
+        
         Drawable g = findViewById(R.id.buttonDivide).getBackground();  
         PorterDuffColorFilter filter7 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
         g.setColorFilter(filter7); 
         
-        Button lParen = (Button) this.findViewById(R.id.buttonLParen);
+        
         Drawable h = findViewById(R.id.buttonLParen).getBackground();  
         PorterDuffColorFilter filter8 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
         h.setColorFilter(filter8); 
         
-        Button rParen = (Button) this.findViewById(R.id.buttonRParen);
+       
         Drawable z = findViewById(R.id.buttonRParen).getBackground();  
         PorterDuffColorFilter filter9 = new PorterDuffColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_ATOP);  
         z.setColorFilter(filter9); 
         
-        
-        
+  
         
         //incializes string
         for(int i = 0; i < value.length; i++){
@@ -201,7 +193,7 @@ public class MainActivity extends Activity implements
     
     public void operandBusiness(String operand, int operandSign){
     	char lastChar = checkValue.charAt(checkValue.length() - 1);
-    	if(lastChar == '+' || lastChar == '-' || lastChar == '=' || lastChar == '/' || lastChar == '÷' || lastChar == '*'){
+    	if(lastChar == '+' || lastChar == '=' || lastChar == '/' || lastChar == '÷' || lastChar == '*' || lastChar == '-'){
 	    	//this is for if they press +++++++
     	}else{
 	    	textView.append(operand);  	
@@ -229,6 +221,11 @@ public class MainActivity extends Activity implements
     	operandBusiness("+", 1);
     }
     public void minus(View view){
+    	//this is for if you press '-' before a number
+    	if(textView.length() < 1){
+			textView.append("-"); 
+			firstIntNegative = true;
+		}
     	operandBusiness("-", 2);
     }
     
@@ -261,7 +258,7 @@ public class MainActivity extends Activity implements
 	    	answer.setText(sResult);
 	
 	    	checkValue = "+";
-	    	
+	    	firstIntNegative = false;
 	    	valueIndex = 0; // reset counter 
 	    	//re set STring
 	        for(int i = 0; i < value.length; i++){
@@ -277,7 +274,7 @@ public class MainActivity extends Activity implements
     	//int sum1 = Integer.parseInt(value[0]) + Integer.parseInt(value[1]);
     	int sum1 = 0;
     	
-    	//multiplys and divides
+    	//multiplys and divides mod
     	for(int i = 0; sign[i] > 0; i++){
     		
     		
@@ -286,6 +283,11 @@ public class MainActivity extends Activity implements
 
 			
 			case 3: if(sum1 == 0){
+					if(firstIntNegative && sign[0] == 3){
+						firstIntNegative = false;
+						sum1 -= Integer.parseInt(value[i]);
+						(value[i]) = "";
+					}else
 						sum1 = Integer.parseInt(value[i]);
 						(value[i]) = "";
 					}
@@ -322,8 +324,12 @@ public class MainActivity extends Activity implements
     	for(int i = 0; sign[i] > 0; i++){
     		
 	    	switch(sign[i]){
-			
-			case 1: if(value[i].length() > 0 && multiplex == true){//these two ifelse are for finding out the right index if multiplicvation has been used
+			//add
+			case 1:if(value[i].length() > 0 && multiplex == true && firstIntNegative){//these two ifelse are for finding out the right index if multiplicvation has been used
+						sum1 -= Integer.parseInt(value[i]);
+						firstIntNegative = false;
+						(value[i]) = "";
+					}else if(value[i].length() > 0 && multiplex == true){//these two ifelse are for finding out the right index if multiplicvation has been used
 						sum1 += Integer.parseInt(value[i]);
 						(value[i]) = "";
 					}else{
@@ -332,17 +338,21 @@ public class MainActivity extends Activity implements
 							(value[i + 1]) = "";
 						}
 					}
-					if(sum1 == 0 && multiplex == false){
+					if(sum1 == 0 && multiplex == false && firstIntNegative){
+						firstIntNegative = false;
+						sum1 -= Integer.parseInt(value[i]);
+						sum1 += Integer.parseInt(value[i + 1]);
+					}else if(sum1 == 0 && multiplex == false){
 						sum1 = Integer.parseInt(value[i]);
 						sum1 += Integer.parseInt(value[i + 1]);
-					} else{
+					}else{
 						if(!multiplex){
-							sum1 += Integer.parseInt(value[i + 1]);
-						}
+						sum1 += Integer.parseInt(value[i + 1]);
+							}
 					}
 					
 					break;
-			
+			//subtract
 			case 2: if(sum1 == 0){
 						sum1 = Integer.parseInt(value[i]);
 					} 
