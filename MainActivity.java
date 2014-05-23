@@ -253,9 +253,14 @@ public class MainActivity extends Activity implements
 	    	textView.append(" =");
 	
 	    	
-	    	int result = Calculate(equation);
-	    	String sResult = Integer.toString(result);
-	    	answer.setText(sResult);
+	    	double result = Calculate(equation);
+	    	String sResult = Double.toString(result);
+	    	int dotIndex = sResult.indexOf('.');
+	    	if(sResult.charAt(dotIndex + 1) == '0'){
+	    		answer.setText(sResult.substring(0, dotIndex));
+	    	}else{
+	    		answer.setText(sResult);
+	    	}
 	
 	    	checkValue = "+";
 	    	firstIntNegative = false;
@@ -269,10 +274,10 @@ public class MainActivity extends Activity implements
     }
     
     
-    public int Calculate(String equation){
+    public double Calculate(String equation){
     	
     	//int sum1 = Integer.parseInt(value[0]) + Integer.parseInt(value[1]);
-    	int sum1 = 0;
+    	double sum1 = 0;
     	
     	//multiplys and divides mod
     	for(int i = 0; sign[i] > 0; i++){
